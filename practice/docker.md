@@ -41,7 +41,7 @@
 ### Задание 1. Установка Docker и запуск первого контейнера
 1. Установите Docker (следуйте официальной документации):
    ```bash
-   sudo apt-get update && sudo apt-get install docker.io
+   sudo apt-get update && sudo apt-get install docker docker-compose
    ```
 
 2. Проверьте установку:
