@@ -138,7 +138,8 @@ IP-адрес, маску и шлюз можно изменить команда
      ```  
    - Сохраните правила:  
      ```bash
-     iptables-save > /etc/iptables.rules
+     iptables-save -f /etc/sysconfig/iptables
+     systemctl enable --now iptables
      ```  
 
 ---
