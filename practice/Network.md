@@ -18,7 +18,9 @@
 
 Файлы настройки сети для интерфейса enp0s3:
 
-### ls -1 /etc/net/ifaces/enp0s3
+```bash
+ ls -1 /etc/net/ifaces/enp0s3
+```
 ipv4address
 ipv4route
 options
