@@ -39,7 +39,7 @@
    ``` 
 
 2. **Настройка конфигурации:**  
-   - Файл `/etc/dhcp/dhcpd.conf`:  (По-умолчанию он не существует, как пример можно использовать файлы dhcpd.conf.example, dhcpd.conf.sample)
+   - Файл `/etc/dhcp/dhcpd.conf`:  (По-умолчанию он не существует, как пример можно использовать файлы **dhcpd.conf.example, dhcpd.conf.sample**)
      ```bash
      subnet 192.168.1.0 netmask 255.255.255.0 {
        range 192.168.1.100 192.168.1.200;
