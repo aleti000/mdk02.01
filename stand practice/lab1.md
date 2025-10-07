@@ -9,6 +9,8 @@
 ## Схема сети
 **ссылка на схему сети**
 
+![alt text](https://github.com/aleti000/mdk02.01/blob/main/pic/network02.jpg)
+
 ## Теоретические основы
 
 ### Сетевые инструменты Linux
