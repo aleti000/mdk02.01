@@ -42,7 +42,7 @@ SSH (Secure Shell) - это криптографический сетевой п
 
 ## Схема сети
 
-![Схема сети](network02.jpg)
+![alt text](https://github.com/aleti000/mdk02.01/blob/main/pic/network02.jpg)
 
 **Описание сети:**
 - **CLI-home** - клиентская машина в домашней сети (192.168.0.0/24)
