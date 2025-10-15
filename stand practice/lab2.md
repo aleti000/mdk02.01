@@ -134,25 +134,25 @@ sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.backup
 Отредактируйте файл `/etc/ssh/sshd_config`:
 ```bash
 # Изменить порт SSH на 2243
-sudo sed -i 's/#Port 22/Port 2243/' /etc/ssh/sshd_config
+Port 2243
 
 # Запретить доступ с паролем для пользователя root
-sudo sed -i 's/#PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
+PermitRootLogin no
 
 # Установить максимальное количество попыток аутентификации
-sudo sed -i 's/#MaxAuthTries 6/MaxAuthTries 2/' /etc/ssh/sshd_config
+MaxAuthTries 2
 
 # Запретить пустые пароли
-sudo sed -i 's/#PermitEmptyPasswords no/PermitEmptyPasswords no/' /etc/ssh/sshd_config
+PermitEmptyPasswords no
 
 # Отключить парольную аутентификацию
-sudo sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+PasswordAuthentication no
 
 # Включить аутентификацию по ключам
-sudo sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/' /etc/ssh/sshd_config
+PubkeyAuthentication yes
 
 # Настроить баннер
-sudo sed -i 's|#Banner none|Banner /etc/ssh/banner.txt|' /etc/ssh/sshd_config
+Banner /etc/ssh/banner.txt
 ```
 
 Создайте файл баннера:
@@ -172,37 +172,11 @@ EOF
 **На SRV2 (самостоятельно):**
 Повторите настройку SSH-сервера, но используйте другой порт (например, 3344) и создайте собственный баннер.
 
-#### Шаг 3. Создание директории .ssh для пользователя remoteadm
-
-**На SRV1:**
-```bash
-# Создать директорию .ssh
-sudo mkdir -p /home/remoteadm/.ssh
-
-# Установить правильные права доступа
-sudo chmod 700 /home/remoteadm/.ssh
-sudo chown -R remoteadm:remoteadm /home/remoteadm/.ssh
-
-# Создать файл authorized_keys
-sudo touch /home/remoteadm/.ssh/authorized_keys
-sudo chmod 600 /home/remoteadm/.ssh/authorized_keys
-sudo chown remoteadm:remoteadm /home/remoteadm/.ssh/authorized_keys
-```
-
-**На SRV2 (самостоятельно):**
-Повторите те же команды для создания директории .ssh.
-
 ### Часть 2: Подготовка клиентов (CLI-home - с инструкцией, CLI-office - самостоятельно)
 
 #### Шаг 4. Генерация SSH-ключей
 
 **На CLI-home (с подробной инструкцией):**
-```bash
-# Создать директорию .ssh если она не существует
-mkdir -p ~/.ssh
-
-# Установить правильные права доступа
-chmod 700 ~/.ssh
 
 # Сгенерировать пару ключей RSA
 ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa_srv1 -C "SSH key for SRV1"
@@ -241,7 +215,6 @@ ssh-keyscan -p 3344 172.16.0.3 >> ~/.ssh/known_hosts
 **На CLI-home (с подробной инструкцией):**
 Создайте файл `~/.ssh/config`:
 ```bash
-cat > ~/.ssh/config << 'EOF'
 # Настройки для SRV1
 Host srv1
     HostName 172.16.0.2
@@ -265,10 +238,7 @@ Host *
     ServerAliveInterval 60
     ServerAliveCountMax 3
     ConnectTimeout 10
-EOF
 
-# Установить правильные права на файл конфигурации
-chmod 600 ~/.ssh/config
 ```
 
 **На CLI-office (самостоятельно):**
