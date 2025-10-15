@@ -66,6 +66,7 @@ Nginx известен своей эффективностью при работ
    - Активные сайты создаются как символические ссылки из sites-available в sites-enabled.
 
 #### Пример файла конфигурации сайта
+```bash
 server {
     listen 80;
     server_name example.com www.example.com;
@@ -77,6 +78,7 @@ server {
         try_files $uri $uri/ =404;
     }
 }
+```
 
 - listen: Порт, на котором работает сервер (обычно 80 для HTTP).
 - server_name: Доменное имя сайта.
@@ -92,6 +94,7 @@ server {
 Обратный прокси — это сервер, который принимает запросы от клиентов и перенаправляет их на внутренние серверы (бэкенды). Это позволяет скрыть реальные серверы от внешнего мира и обеспечить балансировку нагрузки.
 
 #### Пример конфигурации обратного проксирования
+```bash
 server {
     listen 80;
     server_name proxy.example.com;
@@ -103,6 +106,7 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
 }
+```
 
 - proxy_pass: Адрес бэкенд-сервера.
 - proxy_set_header: Добавление заголовков для передачи информации о клиенте.
@@ -133,12 +137,15 @@ tail -f /var/log/nginx/error.log
 
 #### Ограничение доступа
 1. Разрешите доступ только к определенным IP-адресам:
+```bash
    location /admin {
        allow 192.168.1.0/24;
        deny all;
    }
+```
 
-2. Настройте SSL/TLS для шифрования трафика:
+3. Настройте SSL/TLS для шифрования трафика:
+```bash
    server {
        listen 443 ssl;
        server_name example.com;
@@ -150,9 +157,11 @@ tail -f /var/log/nginx/error.log
            proxy_pass http://backend_server;
        }
    }
+```
 
 #### Защита от атак
 - Используйте модуль limit_req для ограничения количества запросов:
+```bash
   http {
       limit_req_zone $binary_remote_addr zone=one:10m rate=1r/s;
 
@@ -162,6 +171,7 @@ tail -f /var/log/nginx/error.log
           }
       }
   }
+```
 
 ---
 
