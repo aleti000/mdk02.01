@@ -93,7 +93,7 @@ nslookup google.com
 
 #### Настройка устройства gateway
 
-1. **Настроим интерфейс в сторону CLI-office:**
+1. **Настроим интерфейс в сторону CLI-home:**
    ```bash
    cp -R /etc/net/ifaces/ens18 /etc/net/ifaces/ens19
    echo "TYPE=eth" > /etc/net/ifaces/ens19/options
