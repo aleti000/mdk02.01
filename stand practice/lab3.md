@@ -119,10 +119,8 @@ host hostname {
  apt-get update
 
 # Установить DHCP-сервер
- apt-get install -y isc-dhcp-server
+ apt-get install -y dhcp-server
 
-# Установить дополнительные утилиты для диагностики
- apt-get install -y tcpdump net-tools
 ```
 
 #### Шаг 2. Настройка сетевого интерфейса для DHCP
@@ -132,12 +130,9 @@ host hostname {
 # Определить интерфейс для обслуживания DHCP-клиентов
 ip addr show
 
-# Отредактировать файл /etc/default/isc-dhcp-server
- tee /etc/default/isc-dhcp-server > /dev/null << 'EOF'
+# Отредактировать файл /etc/sysconfig/dhcp
 # Интерфейс, на котором будет работать DHCP-сервер
-INTERFACESv4="ens21"
-INTERFACESv6=""
-EOF
+DHCPARGS="ens19"
 ```
 
 #### Шаг 3. Создание конфигурации DHCP-сервера
@@ -358,14 +353,14 @@ ping -c 3 172.16.0.3
 | DHCP-сервер не запускается | Проверить синтаксис dhcpd.conf: `dhcpd -t` |
 | Клиент не получает адрес | Проверить firewall: ` iptables -L` |
 | Конфликт статических адресов | Убедиться в уникальности MAC-адресов |
-| Не работает после перезагрузки | Проверить автозапуск: `systemctl enable isc-dhcp-server` |
+| Не работает после перезагрузки | Проверить автозапуск: `systemctl enable dhcpd` |
 | Пакеты не доходят до сервера | Проверить маршрут: `ip route show` |
 
 ## Полезные команды для диагностики
 
 ```bash
 # Проверка статуса DHCP-сервера
- systemctl status isc-dhcp-server
+ systemctl status dhcpd
 
 # Проверка синтаксиса конфигурации
  dhcpd -t
