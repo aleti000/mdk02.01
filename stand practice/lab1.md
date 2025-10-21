@@ -133,6 +133,10 @@ nslookup google.com
    apt-get update
    apt-get install iptables
    ```
+1.1. Добавим iptables в автозагрузку:
+```bash
+systemctl enable iptables
+```
 
 2. Настроим NAT:
    ```bash
