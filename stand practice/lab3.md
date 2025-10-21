@@ -130,7 +130,7 @@ host hostname {
 # Определить интерфейс для обслуживания DHCP-клиентов
 ip addr show
 
-# Отредактировать файл /etc/sysconfig/dhcp
+# Отредактировать файл /etc/sysconfig/dhcpd
 # Интерфейс, на котором будет работать DHCP-сервер
 DHCPARGS="ens19"
 ```
