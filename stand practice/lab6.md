@@ -87,12 +87,12 @@
 
 1. **Включите IP forwarding:**
    ```bash
-   echo 1 > /proc/sys/net/ipv4/ip_forward
+   echo 1 > /etc/net/sysctl.conf
    ```
 
 2. **Настройте MASQUERADE:**
    ```bash
-   iptables -t nat -A POSTROUTING -o ens20 -j MASQUERADE
+   iptables -t nat -A POSTROUTING -o **выходной интерфейс** -j MASQUERADE
    ```
 
 3. **Проверьте NAT правила:**
@@ -167,15 +167,10 @@
 
 1. **Сохраните правила:**
    ```bash
-   iptables-save > /etc/iptables/rules.v4
+   iptables-save -f /etc/sysconfig/iptables
    ```
 
-2. **Восстановите правила:**
-   ```bash
-   iptables-restore < /etc/iptables/rules.v4
-   ```
-
-3. **Добавьте в автозагрузку:**
+2. **Добавьте в автозагрузку:**
    ```bash
    systemctl enable iptables
    ```
