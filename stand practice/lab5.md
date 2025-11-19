@@ -156,41 +156,31 @@ gpupdate --force
 
 #### Шаг 4. Создание групповой политики
 
-**На SRV1 или CLI-office (с GPUI):**
+**На CLI-office (с GPUI):**
 ```bash
-# Запустить графический интерфейс для управления GPO (если установлена среда рабочего стола)
-gpui &
+# Зайти под учетной записью с правом установки ПО, выполнить команду:
+apt-get install admc
 ```
 
-**Или с помощью командной строки на SRV1:**
-```bash
-# Создать новый объект групповой политики
-samba-tool gpo create "TestPolicy" -U administrator
+**ADMC**
 
-# Получить список GPO
-samba-tool gpo listall
+### Зайти за пользователя, который обладает правами управление доменом (по-умолчанию это administrator), открыть приложение admc
+![alt text](../pic/lab5_2.jpg)
 
-# Назначить GPO на OU или домен (например, на домен по умолчанию)
-samba-tool gpo setlink "CN=Policies,CN=System,DC=test,DC=alt" "CN={GUID}," -U administrator
-# Где {GUID} - GUID созданной политики из предыдущего шага
-```
+
 
 ### Часть 3: Настройка и применение политик
 
 #### Шаг 5. Настройка политики ограничения доступа к ping
 
-**С помощью GPUI:**
+1. выбрать домен [test.sa]
+2. нажать на него правую кнопку мыши, выбрать создать OU
+3. В данное OU поместить пользователя, для которого нужно применить политику и устройство(перенести из Users, Computers)
+4. Во вкладке Group Policy выбрать созданное подразделение(OU) нажать правую кнопку и "создать групповую политику и привязать её"
+5. выбрать созданную групповую политику, правая кнопка мыши, edit
+6. В разделе Machines -> Administrative Template -> ALT System -> Network Application -> Permissions for /usr/bin/ping выбрать следующие параметры: Enabled , only root
 
-1. Открыть GPUI
-2. Выбрать политику "TestPolicy"
-3. Перейти к Конфигурация компьютера → Административные шаблоны → Система ALT → Сетевые приложения
-4. Включить политику "Разрешения для /usr/bin/ping" и установить "Только root"
 
-**Или с помощью командной строки на SRV1:**
-```bash
-# Использовать samba-tool для управления настройками (требует дополнительных инструментов)
-# Для простоты используем прямое редактирование файлов GPO в sysvol
-```
 
 #### Шаг 6. Применение политики на клиенте
 
@@ -201,52 +191,6 @@ gpupdate --force
 
 # Проверить применение политики
 journalctl -u gpupdate -n 20
-
-# Тестировать доступ к ping для обычного пользователя
-su - testuser  # войти под обычным пользователем
-ping -c 1 localhost  # должно быть отказано в доступе
-
-# Проверить как root
-ping -c 1 localhost  # должно работать
-```
-
-### Часть 4: Создание организационной структуры и привязка политик
-
-#### Шаг 7. Создание OU и перемещение клиентов
-
-**На SRV1:**
-```bash
-# Создать OU для рабочих станций
-samba-tool ou create "OU=Workstations,DC=test,DC=alt" -U administrator
-
-# Переместить компьютер CLI-office в OU
-samba-tool computer move "CN=CLI-OFFICE,CN=Computers,DC=test,DC=alt" "OU=Workstations,DC=test,DC=alt" -U administrator
-```
-
-#### Шаг 8. Привязка GPO к OU
-
-**На SRV1:**
-```bash
-# Получить GUID политики
-samba-tool gpo listall
-
-# Привязать политику к OU
-samba-tool ou gpolink "OU=Workstations,DC=test,DC=alt" "CN={GUID},CN=Policies,CN=System,DC=test,DC=alt" -U administrator
-```
-
-#### Шаг 9. Проверка применения политик
-
-**На CLI-office:**
-```bash
-# Вызвать обновление политик
-gpupdate
-
-# Проверить логи
-journalctl -u gpupdate
-
-# Проверить результат
-id  # проверить, что пользователь в домене
-ping google.com  # проверить политику ping (как обычный пользователь)
 ```
 
 ## Задание
