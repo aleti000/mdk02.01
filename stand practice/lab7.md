@@ -43,9 +43,29 @@ LVM — это система управления логическими том
 
 | Компонент | Описание | Основные команды |
 |-----------|----------|------------------|
-| PV | Физический том | `pvcreate`, `pvs`, `pvdisplay`, `pvremove` |
-| VG | Группа томов | `vgcreate`, `vgs`, `vgdisplay`, `vgextend`, `vgreduce`, `vgremove` |
-| LV | Логический том | `lvcreate`, `lvs`, `lvdisplay`, `lvextend`, `lvresize`, `lvremove` |
+| PV | Физический том (подготовка диска для LVM) | `pvcreate [-f] /dev/sdX` — инициализация; `pvs` — список; `pvdisplay` — детали; `pvremove` — удаление |
+| VG | Группа томов (пул из PV) | `vgcreate vg_name /dev/sdX /dev/sdY` — создание; `vgs` — список; `vgextend vg_name /dev/sdZ` — расширение; `vgreduce` — уменьшение; `vgremove` — удаление |
+| LV | Логический том (раздел из VG) | `lvcreate -L 1G -n lv_name vg_name` — создание; `lvs` — список; `lvextend -L +500M vg/lv` — расширение; `lvresize` — изменение размера; `lvremove vg/lv` — удаление |
+
+#### Подробное описание ключевых команд
+
+**PV команды:**
+- `pvcreate /dev/sdb` — Инициализирует диск/раздел как PV (добавляет LVM метаданные). Опция `-f` для force (игнор ошибок).
+- `pvs` — Краткий список всех PV (размер, свободно).
+- `pvdisplay` — Полная информация по PV (PE count, VG affiliation).
+
+**VG команды:**
+- `vgcreate demo_vg /dev/sdb /dev/sdc` — Создает VG из PV (суммирует их размер минус overhead).
+- `vgextend demo_vg /dev/sdd` — Добавляет PV в VG (онлайн, увеличивает Free PE).
+- `vgs` — Статус VG (VG Size, Free PE/Size).
+
+**LV команды:**
+- `lvcreate -L 800M -n lv_home demo_vg` — Создает LV фиксированного размера (`-l 10%VG` для %VG).
+- `lvextend -L +500M /dev/demo_vg/lv_data` — Расширяет LV (онлайн для большинства ФС).
+- `lvs` — Список LV (Path, Size, VG).
+
+**Дополнительно для ФС после lvextend:**
+- `resize2fs /dev/vg/lv` — Расширяет ext4 (онлайн если mounted).
 
 ### Диагностика дисков
 ```bash
