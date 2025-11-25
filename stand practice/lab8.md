@@ -14,26 +14,54 @@
 
 ### rsyslog в ALT Linux
 
-rsyslog — демон системного логирования. Конфиг /etc/rsyslog.conf, /etc/rsyslog.d/.
+rsyslog — современный демон системного логирования в ALT Linux (замена sysklogd).
 
-- **Сервер:** imudp/imtcp для приема UDP/TCP 514.
-- **Клиент:** omrelp/omfwd для отправки.
-- **Правила:** facility.priority e.g. *.warning @@IP:514
+**История развития:**
+- **syslog (BSD, 1980):** Базовый UDP-only протокол.
+- **sysklogd (Linux, 1990s):** Стандарт Linux до 2008, ограничен (UDP, простые правила).
+- **syslog-ng (2000, BalaBit):** Расширения (TCP, фильтры, DB).
+- **rsyslog (2004, Rainer Gerhards):** Форк syslog-ng, высокопроизводительный, scripting (RELP), Elasticsearch output, ALT default.
+
+**Преимущества rsyslog:**
+- По сравнению с sysklogd: TCP/RELp, сложные фильтры, templates, высокая нагрузка.
+- По сравнению с syslog-ng: Простой синтаксис, быстрая обработка, встроенные драйверы (omkafka, omelasticsearch).
+
+**Конфигурация в ALT Linux:**
+- Основной файл: /etc/rsyslog.conf
+- Дополнительные: /etc/rsyslog.d/*.conf
+- Служба: systemctl rsyslog
+- Порты: UDP/TCP 514
+
+- **Сервер:** $ModLoad imudp; $UDPServerRun 514
+- **Клиент:** *.warning @@server:514
+- **Правила:** facility.priority (auth.err, *.warning); templates %HOSTNAME%-%$YEAR%.log
 
 | Facility | Описание |
 |----------|----------|
-| auth | Аутентификация |
-| cron | Планировщик |
-| kern | Ядро |
-| user | Пользовательские процессы |
-| mail | Почта |
+| auth | События аутентификации (login, su) |
+| authpriv | Приватные события безопасности (пароли, PAM) |
+| cron | События планировщика cron/at |
+| daemon | Действия системных демонов (sshd, apache) |
+| kern | Сообщения ядра (dmesg, драйверы) |
+| lpr | Печать (CUPS, LPD) |
+| mail | Почтовые события (Postfix, Sendmail) |
+| mark | Маркеры времени (rsyslog internal) |
+| news | News-серверы (NNTP) |
+| security | Безопасность (alias для auth в старых sysklogd) |
+| user | Пользовательские процессы (logger) |
+| uucp | UUCP протокол (устаревший) |
+| local0-local7 | Локальные приложения (8 пользовательских каналов) |
 
-| Priority | Уровень |
-|----------|---------|
-| err | Ошибки |
-| warning | Предупреждения |
-| info | Инфо |
-| debug | Отладка |
+| Код | Priority | Уровень |
+|-----|----------|---------|
+| 0 | emerg | Системная авария |
+| 1 | alert | Требует немедленного внимания |
+| 2 | crit | Критические условия |
+| 3 | err | Ошибки |
+| 4 | warning | Предупреждения |
+| 5 | notice | Важные условия |
+| 6 | info | Информационные сообщения |
+| 7 | debug | Отладочная информация |
 
 ### Методические указания
 
