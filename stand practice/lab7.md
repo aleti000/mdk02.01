@@ -208,15 +208,15 @@ df -h /data
 3. **Создайте VG `myvg`** из sdb и sdc.
 4. **Создайте несколько LV:**
    - `lv_data` 1 ГБ ext4 для /data
-   - `lv_home` 800 МБ ext4 для /home_new
-   - `lv_swap` 512 МБ swap
-   - `lv_backup` остаток (~688 МБ) ext4 для /backup
+   - `lv_home` 300 МБ ext4 для /home_new
+   - `lv_swap` 256 МБ swap
+   - `lv_backup` 700 МБ ext4 для /backup
 5. **Отформатируйте, создайте директории, монтируйте** (`mount`, `swapon`), добавьте в `/etc/fstab`.
 6. **Расширьте:** `vgextend myvg /dev/sdd`, `lvextend -L +500M lv_data`, `resize2fs`.
 
 **Критерии выполнения работы:**
 Работа считается выполненной если:
-- VG `myvg` содержит 3 PV (~3 ГБ), LV: lv_data ~1.5 ГБ, lv_home 800M, lv_swap 512M, lv_backup ~688M (`lvs; vgs`).
+- VG `myvg` содержит 3 PV (~3 ГБ), LV: lv_data ~1.5 ГБ, lv_home 300M, lv_swap 256M, lv_backup ~700M (`lvs; vgs`).
 - `df -hT` показывает /data, /home_new, /backup ext4 mounted.
 - `swapon -s` показывает lv_swap.
 - Расширение lv_data успешно (`df -h /data` >1ГБ).
