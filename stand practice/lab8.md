@@ -103,7 +103,7 @@ logger -p user.warning "Test warning"
 
 ## Задание
 1. srv2: rsyslog server с remote logs.
-2. gateway/SRV1/SRV2: отправлять только логи уровня warning+ to srv2.
+2. SRV1: отправлять только логи уровня warning+ to srv2.
 3. CLI-home/office: отправлять только логи уровня error+ to srv2.
 Критерии: tail /var/log/remote/gateway.log shows warnings.
 
