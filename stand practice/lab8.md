@@ -12,6 +12,7 @@
 
 ## Теоретические основы
 # Ознакомится со статьей по адресу: https://www.altlinux.org/Journald
+
 ### rsyslog в ALT Linux
 
 rsyslog — современный демон системного логирования в ALT Linux (замена sysklogd).
