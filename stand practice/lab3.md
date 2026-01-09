@@ -116,13 +116,11 @@ host hostname {
 **На SRV1:**
 ```bash
 # Обновить список пакетов
-sudo apt-get update
+ apt-get update
 
 # Установить DHCP-сервер
-sudo apt-get install -y isc-dhcp-server
+ apt-get install -y dhcp-server
 
-# Установить дополнительные утилиты для диагностики
-sudo apt-get install -y tcpdump net-tools
 ```
 
 #### Шаг 2. Настройка сетевого интерфейса для DHCP
@@ -132,12 +130,9 @@ sudo apt-get install -y tcpdump net-tools
 # Определить интерфейс для обслуживания DHCP-клиентов
 ip addr show
 
-# Отредактировать файл /etc/default/isc-dhcp-server
-sudo tee /etc/default/isc-dhcp-server > /dev/null << 'EOF'
+# Отредактировать файл /etc/sysconfig/dhcpd
 # Интерфейс, на котором будет работать DHCP-сервер
-INTERFACESv4="ens21"
-INTERFACESv6=""
-EOF
+DHCPARGS="ens19"
 ```
 
 #### Шаг 3. Создание конфигурации DHCP-сервера
@@ -145,10 +140,10 @@ EOF
 **На SRV1:**
 ```bash
 # Создать резервную копию оригинального файла конфигурации
-sudo cp /etc/dhcp/dhcpd.conf /etc/dhcp/dhcpd.conf.backup
+ cp /etc/dhcp/dhcpd.conf /etc/dhcp/dhcpd.conf.backup
 
 # Создать новую конфигурацию DHCP-сервера
-sudo tee /etc/dhcp/dhcpd.conf > /dev/null << 'EOF'
+ tee /etc/dhcp/dhcpd.conf > /dev/null << 'EOF'
 # Глобальные параметры DHCP-сервера
 ddns-update-style none;
 option domain-name "office.local";
@@ -196,19 +191,19 @@ EOF
 **На SRV1:**
 ```bash
 # Проверить синтаксис конфигурации
-sudo dhcpd -t
+ dhcpd -t
 
 # Если синтаксис корректен, перезапустить службу
-sudo systemctl restart isc-dhcp-server
+ systemctl restart dhcpd
 
 # Включить автозапуск службы
-sudo systemctl enable isc-dhcp-server
+ systemctl enable dhcpd
 
 # Проверить статус службы
-sudo systemctl status isc-dhcp-server
+ systemctl status dhcpd
 
 # Просмотреть логи DHCP-сервера
-sudo tail -f /var/log/syslog | grep dhcpd
+ journalctl -xeu dhcpd
 ```
 
 ### Часть 2: Настройка клиентов для получения адресов по DHCP
@@ -218,17 +213,17 @@ sudo tail -f /var/log/syslog | grep dhcpd
 **На SRV2:**
 ```bash
 # Настроить интерфейс для получения адреса по DHCP
-sudo tee /etc/net/ifaces/ens21/options > /dev/null << 'EOF'
+ tee /etc/net/ifaces/ens21/options > /dev/null << 'EOF'
 TYPE=eth
 BOOTPROTO=dhcp
 EOF
 
 # Удалить статическую конфигурацию IP-адреса
-sudo rm -f /etc/net/ifaces/ens21/ipv4address
-sudo rm -f /etc/net/ifaces/ens21/ipv4route
+ rm -f /etc/net/ifaces/ens21/ipv4address
+ rm -f /etc/net/ifaces/ens21/ipv4route
 
 # Перезапустить сеть
-sudo systemctl restart network
+ systemctl restart network
 
 # Проверить полученный адрес
 ip addr show ens21
@@ -242,17 +237,17 @@ ip addr show ens21
 nmcli connection modify "Wired connection 1" ipv4.method auto
 
 # Перезапустить NetworkManager
-sudo systemctl restart NetworkManager
+ systemctl restart NetworkManager
 
 # Или альтернативно через etcnet
-sudo tee /etc/net/ifaces/eth0/options > /dev/null << 'EOF'
+ tee /etc/net/ifaces/eth0/options > /dev/null << 'EOF'
 TYPE=eth
 BOOTPROTO=dhcp
 EOF
 
 # Удалить статическую конфигурацию
-sudo rm -f /etc/net/ifaces/eth0/ipv4address
-sudo systemctl restart network
+ rm -f /etc/net/ifaces/eth0/ipv4address
+ systemctl restart network
 ```
 
 ### Часть 3: Тестирование и диагностика DHCP
@@ -262,16 +257,16 @@ sudo systemctl restart network
 **На SRV1:**
 ```bash
 # Проверить активные аренды адресов
-sudo cat /var/lib/dhcp/dhcpd.leases
+ cat /var/lib/dhcp/dhcpd.leases
 
 # Просмотреть логи в реальном времени
-sudo tail -f /var/log/syslog | grep dhcpd
+ tail -f /var/log/syslog | grep dhcpd
 
 # Проверить порт DHCP-сервера
-sudo ss -uln | grep :67
+ ss -uln | grep :67
 
 # Тестирование с помощью утилиты dhclient
-sudo dhclient -v ens21
+ dhclient -v ens21
 ```
 
 #### Шаг 8. Проверка получения адресов клиентами
@@ -316,13 +311,13 @@ ping -c 3 172.16.0.3
 **На SRV1 (для мониторинга трафика DHCP):**
 ```bash
 # Установить tcpdump для анализа трафика
-sudo apt-get install -y tcpdump
+ apt-get install -y tcpdump
 
 # Начать захват DHCP-пакетов
-sudo tcpdump -i ens21 -n port 67 or port 68 -v
+ tcpdump -i ens21 -n port 67 or port 68 -v
 
 # В другом терминале протестировать получение адреса
-# На клиенте: sudo dhclient -v
+# На клиенте:  dhclient -v
 ```
 
 ## Задание
@@ -356,28 +351,28 @@ sudo tcpdump -i ens21 -n port 67 or port 68 -v
 | Проблема | Возможное решение |
 |----------|-------------------|
 | DHCP-сервер не запускается | Проверить синтаксис dhcpd.conf: `dhcpd -t` |
-| Клиент не получает адрес | Проверить firewall: `sudo iptables -L` |
+| Клиент не получает адрес | Проверить firewall: ` iptables -L` |
 | Конфликт статических адресов | Убедиться в уникальности MAC-адресов |
-| Не работает после перезагрузки | Проверить автозапуск: `systemctl enable isc-dhcp-server` |
+| Не работает после перезагрузки | Проверить автозапуск: `systemctl enable dhcpd` |
 | Пакеты не доходят до сервера | Проверить маршрут: `ip route show` |
 
 ## Полезные команды для диагностики
 
 ```bash
 # Проверка статуса DHCP-сервера
-sudo systemctl status isc-dhcp-server
+ systemctl status dhcpd
 
 # Проверка синтаксиса конфигурации
-sudo dhcpd -t
+ dhcpd -t
 
 # Просмотр активных аренд
-sudo cat /var/lib/dhcp/dhcpd.leases
+ cat /var/lib/dhcp/dhcpd.leases
 
 # Просмотр логов DHCP
-sudo tail -f /var/log/syslog | grep dhcpd
+ tail -f /var/log/syslog | grep dhcpd
 
 # Тестирование получения адреса
-sudo dhclient -v -r && sudo dhclient -v
+ dhclient -v -r &&  dhclient -v
 
 # Проверка сетевых интерфейсов
 ip addr show
@@ -389,4 +384,4 @@ ip route show
 nslookup google.com
 
 # Мониторинг DHCP-трафика
-sudo tcpdump -i eth0 -n port 67 or port 68
+ tcpdump -i eth0 -n port 67 or port 68
