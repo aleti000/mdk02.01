@@ -1,3 +1,5 @@
 # Игнорировать каталог документы
 docs/
 .gitignore
+.gigaide
+.idea
